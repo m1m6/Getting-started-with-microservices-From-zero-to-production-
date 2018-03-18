@@ -1,0 +1,14 @@
+database:
+  driverClass: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://mysql:3306/locations?useSSL=false&interactiveClient=true&autoReconnectForPools=true
+  user: root
+  password: root
+  maxWaitForConnection: 1s
+  validationQuery: "SELECT now()"
+  validationQueryTimeout: 3s
+  minSize: 8
+  maxSize: 32
+  checkConnectionWhileIdle: false
+  evictionInterval: 10s
+  minIdleTime: 1 minute
+  checkConnectionOnBorrow: true

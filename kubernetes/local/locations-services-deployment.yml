@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: locations-services
+  name: locations-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locations-services
+  template:
+    metadata:
+      labels:
+        app: locations-services
+    spec:
+      containers:
+        - image: "locations-services:latest"
+          imagePullPolicy: Never
+          name: locations-services-container
+          ports:
+            - containerPort: 8080
+              name: app-port
+              protocol: TCP
+            - containerPort: 8081
+              name: admin-port
+              protocol: TCP
+          resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler

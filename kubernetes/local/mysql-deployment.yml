@@ -1,0 +1,46 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          value: "locations"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_ROOT_HOST
+          value: "%"
+        image: mysql:5.5
+        imagePullPolicy: Always
+        name: locations-services-mysql
+        ports:
+        - containerPort: 3306
+          name: mysql
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-data
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-data

@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: locations-services
+  name: locations-services
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locations-services
+  template:
+    metadata:
+      labels:
+        app: locations-services
+    spec:
+      containers:
+        - image: eu.gcr.io/locations-services-production/locations-services:production-latest
+          imagePullPolicy: Always
+          name: locations-services-container
+          ports:
+            - containerPort: 8080
+              name: app-port
+              protocol: TCP
+            - containerPort: 8081
+              name: admin-port
+              protocol: TCP
+          env:
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: cloudsql-db-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cloudsql-db-credentials
+                key: password
+          resources: {}
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command: ["/cloud_sql_proxy",
+                    "-instances=locations-services-production:us-central1:locations-services-cloud-sql-instance=tcp:3306",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: cloudsql
+          emptyDir:
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler

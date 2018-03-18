@@ -1,0 +1,78 @@
+/**
+ * Deploy Ingress
+ */
+task deployIngress(type:Exec){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "create","-f","${project.name}-ingress.yml"
+
+    doLast{
+        println("Started deploying k8s ingress")
+    }
+}
+
+/**
+ * Deploy applications deployment
+ */
+task deployAppDeployment(type:Exec, dependsOn: deployIngress){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "create","-f","${project.name}-deployment.yml"
+
+    doLast{
+        println("Started deploying k8s deployment")
+    }
+}
+
+
+/**
+ * Deploy applications service
+ */
+task deployAppService(type:Exec, dependsOn: deployAppDeployment){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "create","-f","${project.name}-service.yml"
+
+    doLast{
+        println("Started deploying k8s service")
+    }
+}
+
+
+/* Tear down */
+/*****************************************************************************/
+
+
+/**
+ * Deploy Ingress
+ */
+task deleteIngress(type:Exec){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "delete","-f","${project.name}-ingress.yml"
+
+    doLast{
+        println("Started deleteing k8s ingress")
+    }
+}
+
+/**
+ * Deploy applications deployment
+ */
+task deleteAppDeployment(type:Exec, dependsOn: deleteIngress){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "delete","-f","${project.name}-deployment.yml"
+
+    doLast{
+        println("Started deleting k8s deployment")
+    }
+}
+
+
+/**
+ * Deploy applications service
+ */
+task deleteAppService(type:Exec, dependsOn: deleteAppDeployment){
+    workingDir ("${rootDir}/kubernetes/${env}")
+    commandLine "kubectl", "delete","-f","${project.name}-service.yml"
+
+    doLast{
+        println("Started deleting k8s service")
+    }
+}

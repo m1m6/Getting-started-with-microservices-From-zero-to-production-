@@ -1,0 +1,38 @@
+def buildCmd = "docker build -t eu.gcr.io/${project.name}-${env}/${project.name}:${env}-latest . "
+def pushCmd = "gcloud docker -- push eu.gcr.io/${project.name}-${env}/${project.name}:${env}-latest"
+
+
+
+task copyApp(type: Copy, dependsOn: build) {
+    from("${buildDir}/libs") {
+        include "*-all.jar"
+        rename { "${project.name}.jar" }
+    }
+    from(fileTree("${projectDir}/config/${env}").files) {
+        include "**/*.yml"
+    }
+    into("${rootDir}/docker/${project.name}")
+
+    doLast {
+        println("app copyied for env: ${env}")
+    }
+}
+
+
+task buildDockerImage (type:Exec, dependsOn: copyApp){
+    workingDir("${rootDir}/docker/${project.name}")
+    commandLine buildCmd.split(" ")
+
+    doLast {
+        println("Docker image built with the command ${buildCmd}")
+    }
+}
+
+
+task pushDockerImage (type:Exec, dependsOn: buildDockerImage){
+    commandLine pushCmd.split(" ")
+
+    doLast {
+        println("Docker image pushed with the command ${pushCmd}")
+    }
+}

@@ -1,0 +1,52 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+    }
+}
+
+
+group 'com.mjbour'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: "com.github.johnrengelman.shadow"
+
+apply from : "./gradle/docker/docker.gradle"
+apply from : "./gradle/kubernetes/kubernetes.gradle"
+
+sourceCompatibility = 1.8
+mainClassName = "com.mjbour.udemy.LocationsApplication"
+
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version: '1.2.2'
+    compile group: 'io.dropwizard', name: 'dropwizard-db', version: '1.2.2'
+    compile group: 'io.dropwizard', name: 'dropwizard-jdbi', version: '1.2.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.8-dmr'
+}
+
+
+run {
+    args "server" , "${projectDir}/config/config.yml"
+}
+
+
+jar {
+   manifest {
+     attributes 'Main-Class': mainClassName
+       }
+}
+
+task wrapper(type: Wrapper){
+    gradleVersion = "4.0"
+}
